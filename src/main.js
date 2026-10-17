@@ -2,7 +2,7 @@ const CFG = {
   phone: "08123951223",
   whatsapp: "2348123951223",
   bank: { name: "OPay", accountName: "SUNSHINE OGBIGBE", accountNumber: "8123951223" },
-  delivery: "5–30 minutes",
+  delivery: "5 to 30 minutes",
   ratePerB: 20,
   minCustom: 25e9,
 }
@@ -20,19 +20,12 @@ function fmtAmtPretty(n){
   return String(n)
 }
 function calcCustom(amount){ return Math.ceil(amount/1e9 * CFG.ratePerB) }
-function genRef(){
-  const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
-  let s="LLM-"
-  for(let i=0;i<6;i++) s+= chars[Math.floor(Math.random()*chars.length)]
-  return s
-}
-let selected = { packId:"big-boy", customAmount: 300e9 }
-let orderRef = genRef()
 function currentPack(){
   const p = PACKS.find(x=>x.id===selected.packId)
   if(p) return { label:p.name, amount:p.amount, price:p.price }
   return { label:"Custom", amount:selected.customAmount, price: calcCustom(selected.customAmount) }
 }
+let selected = { packId:"big-boy", customAmount: 300e9 }
 function render(){
   const packsEl = document.getElementById("packs")
   packsEl.innerHTML = PACKS.map(p=>{
@@ -52,7 +45,7 @@ function render(){
     <label>Custom amount (billions)</label>
     <input type="number" id="custom-input" inputmode="numeric" min="${CFG.minCustom/1e9}" step="1" value="${Math.floor(selected.customAmount/1e9)}" />
     <div class="custom-meta">
-      <small style="color:${customValid?"var(--text-muted)":"#dc2626"}">${customValid?`₦${CFG.ratePerB} per 1B`:`Minimum ${fmtAmtPretty(CFG.minCustom)}`}</small>
+      <small style="color:${customValid?"var(--muted-fg)":"#dc2626"}">${customValid?`₦${CFG.ratePerB} per 1B`:`Minimum ${fmtAmtPretty(CFG.minCustom)}`}</small>
       <strong>${fmtN(customPrice)}</strong>
     </div>
   `
@@ -63,9 +56,6 @@ function render(){
   const disabled = isCustom && !customValid
   document.getElementById("pay-amount").textContent = disabled ? "--" : fmtN(cur.price)
   document.getElementById("pay-for").textContent = `${fmtAmtPretty(cur.amount)} ${cur.label} pack`
-  document.getElementById("order-ref-display").textContent = orderRef
-  document.getElementById("fine-ref").textContent = orderRef
-  document.getElementById("orderRef").value = orderRef
   document.getElementById("pkgName").value = cur.label
   document.getElementById("gameAmount").value = cur.amount.toLocaleString("en-NG")
   document.getElementById("amountDue").value = fmtN(cur.price)
@@ -85,7 +75,7 @@ function render(){
     const meta = document.querySelector(".custom-meta")
     if(meta){
       const valid = selected.customAmount >= CFG.minCustom
-      meta.innerHTML = `<small style="color:${valid?"var(--text-muted)":"#dc2626"}">${valid?`₦${CFG.ratePerB} per 1B`:`Minimum ${fmtAmtPretty(CFG.minCustom)}`}</small><strong>${fmtN(price)}</strong>`
+      meta.innerHTML = `<small style="color:${valid?"var(--muted-fg)":"#dc2626"}">${valid?`₦${CFG.ratePerB} per 1B`:`Minimum ${fmtAmtPretty(CFG.minCustom)}`}</small><strong>${fmtN(price)}</strong>`
       document.getElementById("pay-amount").textContent = valid ? fmtN(price) : "--"
       document.getElementById("pay-for").textContent = `${fmtAmtPretty(selected.customAmount||0)} Custom pack`
       document.getElementById("submit-btn").disabled = !valid
@@ -107,10 +97,16 @@ function toast(msg){
   t._id=setTimeout(()=> t.hidden=true, 2600)
 }
 function waLink(text){ return `https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent(text)}` }
+function waMsg(username, pkgLabel, amount, price, senderName, whatsapp){
+  let m = `Hello Eko Cash, I want to buy Lagos Life cash. Package: ${pkgLabel} (${fmtAmtPretty(amount)}) at ${fmtN(price)}.`
+  if(username) m += ` Username: ${username}.`
+  if(senderName) m += ` Sender: ${senderName}.`
+  if(whatsapp) m += ` Phone: ${whatsapp}.`
+  return m
+}
 document.getElementById("yr").textContent = new Date().getFullYear()
 function refreshWa(){
-  const msg = `Hi, I want Lagos Life money. Order ${orderRef}. My Lagos Life username is: `
-  const link = waLink(msg)
+  const link = waLink("Hello Eko Cash, I want to buy Lagos Life cash. My username is: ")
   const set = (id)=>{ const e=document.getElementById(id); if(e) e.href=link }
   set("hero-wa"); set("faq-wa"); set("wa-card"); set("sticky-wa")
 }
@@ -145,7 +141,7 @@ document.querySelectorAll("[data-copy]").forEach(b=>{
 })
 document.getElementById("receipt").addEventListener("change", e=>{
   const f=e.target.files?.[0]
-  document.getElementById("receipt-name").textContent = f ? f.name : "Tap to upload your transfer receipt"
+  document.getElementById("receipt-name").textContent = f ? f.name : "Upload your transfer screenshot if you have it"
 })
 render()
 const form = document.getElementById("order-form")
@@ -158,15 +154,11 @@ form.addEventListener("submit", (e)=>{
     statusEl.hidden=false; statusEl.className="form-status err"; statusEl.textContent="Receipt larger than 5 MB. Upload a smaller file."
     return
   }
-  const username = String(fd.get("username")||"")
-  const ref = orderRef
   const cur = currentPack()
-  const chat = waLink(`Hi, I just paid for Lagos Life money. Order ${ref}, username ${username}. Package: ${cur.label} (${fmtAmtPretty(cur.amount)}) at ${fmtN(cur.price)}. Amount sent: ₦${fd.get("amountPaid")||cur.price}. From: ${fd.get("senderName")||""} (${fd.get("whatsapp")||""})`)
+  const msg = waMsg(String(fd.get("username")||""), cur.label, cur.amount, cur.price, String(fd.get("senderName")||""), String(fd.get("whatsapp")||""))
+  const chat = waLink(msg)
   statusEl.hidden=false; statusEl.className="form-status ok"
-  statusEl.innerHTML = `Order captured! Ref <strong>${ref}</strong>. Tap below to send your details on WhatsApp and we credit you within ${CFG.delivery}.<br><a href="${chat}" target="_blank" rel="noreferrer" class="btn btn-primary" style="margin-top:10px;display:inline-flex">Open WhatsApp, send order ${ref}</a>`
+  statusEl.innerHTML = `Details ready. Tap below to send on WhatsApp and we will credit you within ${CFG.delivery} after confirming payment.<br><a href="${chat}" target="_blank" rel="noreferrer" class="btn btn-primary" style="margin-top:10px;display:inline-flex">Open WhatsApp</a>`
   statusEl.scrollIntoView({behavior:"smooth", block:"center"})
-  toast("Order " + ref + " sent. Complete on WhatsApp")
-  orderRef = genRef()
-  refreshWa()
-  render()
+  toast("Details ready. Send on WhatsApp to complete")
 })
