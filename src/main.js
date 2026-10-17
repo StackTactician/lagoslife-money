@@ -38,21 +38,9 @@ document.getElementById("yr").textContent = new Date().getFullYear()
 function refreshWa(){
   const link = waLink("Hello Eko Cash, I want to buy Lagos Life cash. My username is: ")
   const set = (id)=>{ const e=document.getElementById(id); if(e) e.href=link }
-  set("hero-wa"); set("faq-wa"); set("wa-card"); set("sticky-wa")
+  set("hero-wa"); set("faq-wa"); set("wa-card")
 }
 refreshWa()
-const menuBtn=document.getElementById("menu-btn")
-const topnav=document.getElementById("topnav")
-if(menuBtn && topnav){
-  menuBtn.addEventListener("click",()=>{
-    const o=topnav.classList.toggle("open")
-    menuBtn.setAttribute("aria-expanded", String(o))
-    menuBtn.textContent = o ? "Close" : "Menu"
-  })
-  topnav.querySelectorAll("a").forEach(a=> a.addEventListener("click",()=>{
-    topnav.classList.remove("open"); menuBtn.setAttribute("aria-expanded","false"); menuBtn.textContent="Menu"
-  }))
-}
 document.querySelectorAll('a[href^="#"]').forEach(a=>{
   a.addEventListener("click", e=>{
     const id=a.getAttribute("href")
