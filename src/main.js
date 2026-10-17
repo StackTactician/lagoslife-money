@@ -3,11 +3,13 @@ const CFG = {
   whatsapp: "2348123951223",
   bank: { name: "OPay", accountName: "SUNSHINE OGBIGBE", accountNumber: "8123951223" },
   delivery: "5 to 30 minutes",
-  ratePer100B: 1500,
+  ratePer100B: 1000,
   minCustom: 1e9,
+  maxCustom: 1e12,
 }
 function fmtN(n){ return "₦" + n.toLocaleString("en-NG") }
 function fmtAmtPretty(n){
+  if(n>=1e12) return `${+(n/1e12).toFixed(2)}T`
   if(n>=1e9) return `${+(n/1e9).toFixed(n%1e9===0?0:2)}B`
   if(n>=1e6) return `${+(n/1e6).toFixed(2)}M`
   if(n>=1e3) return `${+(n/1e3).toFixed(1)}K`
@@ -15,16 +17,36 @@ function fmtAmtPretty(n){
 }
 function calcPrice(amount){ return Math.ceil(amount/1e11 * CFG.ratePer100B) }
 let amount = 100e9
+function isValid(a){ return a >= CFG.minCustom && a <= CFG.maxCustom }
 function render(){
-  const price = calcPrice(amount)
-  document.getElementById("custom-input").value = Math.round(amount/1e9) || ""
-  document.getElementById("custom-meta").innerHTML = `<small>${fmtN(CFG.ratePer100B)} per 100B</small><strong>${fmtN(price)}</strong>`
-  document.getElementById("pay-amount").textContent = fmtN(price)
-  document.getElementById("pay-for").textContent = fmtAmtPretty(amount) + " Lagos Life money"
-  document.getElementById("gameAmount").value = amount.toLocaleString("en-NG")
-  document.getElementById("amountDue").value = fmtN(price)
-  document.getElementById("amountPaid").value = price
-  document.getElementById("btn-amount").textContent = fmtAmtPretty(amount)
+  const input = document.getElementById("custom-input")
+  const price = amount ? calcPrice(amount) : 0
+  const empty = !amount
+  const overMax = amount > CFG.maxCustom
+  const underMin = amount > 0 && amount < CFG.minCustom
+  if(input && document.activeElement !== input){
+    input.value = empty ? "" : String(Math.round(amount/1e9))
+  } else if(input && empty){
+    input.value = ""
+  } else if(input && !empty){
+    // keep typed value if focused, do not overwrite
+  }
+  const meta = document.getElementById("custom-meta")
+  if(meta){
+    if(empty) meta.innerHTML = `<small>Enter amount</small><strong>--</strong>`
+    else if(underMin) meta.innerHTML = `<small style="color:#dc2626">Minimum ${fmtAmtPretty(CFG.minCustom)}</small><strong>${fmtN(price)}</strong>`
+    else if(overMax) meta.innerHTML = `<small style="color:#dc2626">Maximum ${fmtAmtPretty(CFG.maxCustom)}</small><strong>${fmtN(price)}</strong>`
+    else meta.innerHTML = `<small>${fmtN(CFG.ratePer100B)} per 100B</small><strong>${fmtN(price)}</strong>`
+  }
+  document.getElementById("pay-amount").textContent = (!isValid(amount)) ? "--" : fmtN(price)
+  document.getElementById("pay-for").textContent = empty ? "--" : fmtAmtPretty(amount) + " Lagos Life money"
+  document.getElementById("gameAmount").value = empty ? "" : amount.toLocaleString("en-NG")
+  document.getElementById("amountDue").value = empty ? "" : fmtN(price)
+  document.getElementById("amountPaid").value = empty ? "" : price
+  document.getElementById("btn-amount").textContent = empty ? "--" : fmtAmtPretty(amount)
+  document.getElementById("submit-btn").disabled = !isValid(amount)
+  const box = document.querySelector(".amount-box")
+  if(box) box.style.borderColor = (underMin || overMax) ? "#fca5a5" : ""
 }
 function toast(msg){
   const t=document.getElementById("toast")
@@ -64,9 +86,18 @@ document.getElementById("receipt").addEventListener("change", e=>{
 const input = document.getElementById("custom-input")
 if(input){
   input.addEventListener("input", ()=>{
-    const v = Number(input.value)
-    amount = (isFinite(v) && v>0 ? v : 0) * 1e9
-    if(amount < CFG.minCustom) amount = CFG.minCustom
+    const raw = input.value.trim()
+    if(raw === ""){
+      amount = 0
+      render()
+      return
+    }
+    const v = Number(raw)
+    if(!isFinite(v) || v < 0){
+      amount = 0
+    } else {
+      amount = Math.round(v * 1e9)
+    }
     render()
   })
 }
@@ -75,6 +106,13 @@ const form = document.getElementById("order-form")
 const statusEl = document.getElementById("form-status")
 form.addEventListener("submit", (e)=>{
   e.preventDefault()
+  if(!isValid(amount)){
+    if(!amount) statusEl.textContent = "Enter an amount first."
+    else if(amount < CFG.minCustom) statusEl.textContent = `Minimum is ${fmtAmtPretty(CFG.minCustom)}.`
+    else statusEl.textContent = `Maximum is ${fmtAmtPretty(CFG.maxCustom)}.`
+    statusEl.hidden=false; statusEl.className="form-status err"
+    return
+  }
   const fd = new FormData(form)
   const file = fd.get("receipt")
   if(file && file.size > 5*1024*1024){
