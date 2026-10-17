@@ -6,16 +6,13 @@ const CFG = {
   ratePerB: 20,
   minCustom: 25e9,
 }
-
 const PACKS = [
   { id:"starter", name:"Starter", amount:25e9, price:500 },
   { id:"hustler", name:"Hustler", amount:50e9, price:1000 },
   { id:"big-boy", name:"Big Boy", amount:100e9, price:2000, badge:"Most popular" },
   { id:"odogwu", name:"Odogwu", amount:200e9, price:4000, badge:"Best value" },
 ]
-
 const fmtN = n => "₦" + n.toLocaleString("en-NG")
-const fmtAmt = n => n>=1e9 ? `${+(n/1e9).toFixed(n%1e9===0?0:0)}B`.replace(".00","") : String(n)
 function fmtAmtPretty(n){
   if(n>=1e9) return `${+(n/1e9).toFixed(n%1e9===0?0:2)}B`
   if(n>=1e6) return `${+(n/1e6).toFixed(2)}M`
@@ -29,16 +26,13 @@ function genRef(){
   for(let i=0;i<6;i++) s+= chars[Math.floor(Math.random()*chars.length)]
   return s
 }
-
 let selected = { packId:"big-boy", customAmount: 300e9 }
 let orderRef = genRef()
-
 function currentPack(){
   const p = PACKS.find(x=>x.id===selected.packId)
   if(p) return { label:p.name, amount:p.amount, price:p.price }
   return { label:"Custom", amount:selected.customAmount, price: calcCustom(selected.customAmount) }
 }
-
 function render(){
   const packsEl = document.getElementById("packs")
   packsEl.innerHTML = PACKS.map(p=>{
@@ -51,7 +45,6 @@ function render(){
       <span class="pack-price">${fmtN(p.price)}</span>
     </div>`
   }).join("")
-
   const isCustom = selected.packId==="custom"
   const customPrice = calcCustom(selected.customAmount)
   const customValid = selected.customAmount >= CFG.minCustom
@@ -66,7 +59,6 @@ function render(){
   const box = document.getElementById("custom-box")
   box.className = "custom-box" + (isCustom?" active":"")
   if(isCustom && !customValid) box.style.borderColor="#fca5a5"
-
   const cur = currentPack()
   const disabled = isCustom && !customValid
   document.getElementById("pay-amount").textContent = disabled ? "—" : fmtN(cur.price)
@@ -80,7 +72,6 @@ function render(){
   document.getElementById("amountPaid").value = cur.price
   document.getElementById("btn-amount").textContent = fmtAmtPretty(cur.amount)
   document.getElementById("submit-btn").disabled = disabled
-
   document.querySelectorAll(".pack").forEach(el=>{
     el.onclick = ()=>{ selected.packId = el.dataset.id; render() }
   })
@@ -90,7 +81,6 @@ function render(){
     const v = Number(e.target.value)
     selected.packId="custom"
     selected.customAmount = (isFinite(v) && v>0 ? v : 0) * 1e9
-    // live update price + validation without full re-render flicker on typing: update meta only
     const price = calcCustom(selected.customAmount)
     const meta = document.querySelector(".custom-meta")
     if(meta){
@@ -109,7 +99,6 @@ function render(){
     }
   }
 }
-
 function toast(msg){
   const t=document.getElementById("toast")
   t.textContent=msg
@@ -117,33 +106,40 @@ function toast(msg){
   clearTimeout(t._id)
   t._id=setTimeout(()=> t.hidden=true, 2600)
 }
-
-function waLink(text){
-  return `https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent(text)}`
-}
-
+function waLink(text){ return `https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent(text)}` }
 document.getElementById("yr").textContent = new Date().getFullYear()
-document.getElementById("hero-wa").href = waLink(`Hi, I want Lagos Life money. Order ${orderRef}. My Lagos Life username is: `)
-document.getElementById("faq-wa").href = waLink(`Hi, I want Lagos Life money. Order ${orderRef}. My Lagos Life username is: `)
-document.getElementById("wa-card").href = waLink(`Hi, I want Lagos Life money. Order ${orderRef}. My Lagos Life username is: `)
-
+function refreshWa(){
+  const msg = `Hi, I want Lagos Life money. Order ${orderRef}. My Lagos Life username is: `
+  const link = waLink(msg)
+  const set = (id)=>{ const e=document.getElementById(id); if(e) e.href=link }
+  set("hero-wa"); set("faq-wa"); set("wa-card"); set("sticky-wa")
+}
+refreshWa()
+const menuBtn=document.getElementById("menu-btn")
+const topnav=document.getElementById("topnav")
+if(menuBtn && topnav){
+  menuBtn.addEventListener("click",()=>{
+    const o=topnav.classList.toggle("open")
+    menuBtn.setAttribute("aria-expanded", String(o))
+    menuBtn.textContent = o ? "✕" : "☰"
+  })
+  topnav.querySelectorAll("a").forEach(a=> a.addEventListener("click",()=>{
+    topnav.classList.remove("open"); menuBtn.setAttribute("aria-expanded","false"); menuBtn.textContent="☰"
+  }))
+}
 document.querySelectorAll("[data-copy]").forEach(b=>{
   b.addEventListener("click", async ()=>{
     try{ await navigator.clipboard.writeText(b.dataset.copy); toast("Copied " + b.dataset.copy) }catch{ toast(b.dataset.copy) }
   })
 })
-
 document.getElementById("receipt").addEventListener("change", e=>{
   const f=e.target.files?.[0]
   document.getElementById("receipt-name").textContent = f ? f.name : "Tap to upload your transfer receipt"
 })
-
 render()
-
 const form = document.getElementById("order-form")
 const statusEl = document.getElementById("form-status")
-
-form.addEventListener("submit", async (e)=>{
+form.addEventListener("submit", (e)=>{
   e.preventDefault()
   const fd = new FormData(form)
   const file = fd.get("receipt")
@@ -151,32 +147,15 @@ form.addEventListener("submit", async (e)=>{
     statusEl.hidden=false; statusEl.className="form-status err"; statusEl.textContent="Receipt larger than 5 MB — upload a smaller file."
     return
   }
-  const btn = document.getElementById("submit-btn")
-  btn.disabled=true; btn.textContent="Sending…"
-  statusEl.hidden=true
-  try{
-    const res = await fetch("/api/order",{ method:"POST", body: fd })
-    const data = await res.json().catch(()=>({}))
-    if(!res.ok) throw new Error(data.error || "Submission failed")
-    const username = fd.get("username") || ""
-    const ref = data.orderRef || orderRef
-    const chat = waLink(`Hi, I just paid for Lagos Life money. Order ${ref}${username?`, username ${username}`:""}.`)
-    statusEl.hidden=false; statusEl.className="form-status ok"
-    statusEl.innerHTML = `Order sent! Ref <strong>${ref}</strong> — we confirm payment and credit you within ${CFG.delivery}. <a href="${chat}" target="_blank" rel="noreferrer" style="text-decoration:underline">Chat on WhatsApp</a>`
-    statusEl.scrollIntoView({behavior:"smooth", block:"center"})
-    form.reset()
-    orderRef = genRef()
-    selected = { packId:"big-boy", customAmount:300e9 }
-    render()
-    document.getElementById("hero-wa").href = waLink(`Hi, I want Lagos Life money. Order ${orderRef}. My Lagos Life username is: `)
-    document.getElementById("faq-wa").href = waLink(`Hi, I want Lagos Life money. Order ${orderRef}. My Lagos Life username is: `)
-    document.getElementById("wa-card").href = waLink(`Hi, I want Lagos Life money. Order ${orderRef}. My Lagos Life username is: `)
-    document.getElementById("receipt-name").textContent="Tap to upload your transfer receipt"
-    toast("Order sent — " + ref)
-  }catch(err){
-    statusEl.hidden=false; statusEl.className="form-status err"
-    statusEl.textContent = err.message || "Could not send order. Try again or message us on WhatsApp."
-  }finally{
-    btn.disabled=false; btn.innerHTML=`I've paid — send my <span id="btn-amount">${fmtAmtPretty(currentPack().amount)}</span>`
-  }
+  const username = String(fd.get("username")||"")
+  const ref = orderRef
+  const cur = currentPack()
+  const chat = waLink(`Hi, I just paid for Lagos Life money. Order ${ref}, username ${username}. Package: ${cur.label} (${fmtAmtPretty(cur.amount)}) — ${fmtN(cur.price)}. Amount sent: ₦${fd.get("amountPaid")||cur.price}. From: ${fd.get("senderName")||""} (${fd.get("whatsapp")||""})`)
+  statusEl.hidden=false; statusEl.className="form-status ok"
+  statusEl.innerHTML = `Order captured! Ref <strong>${ref}</strong> — tap below to send your details on WhatsApp and we credit you within ${CFG.delivery}.<br><a href="${chat}" target="_blank" rel="noreferrer" class="btn btn-primary" style="margin-top:10px;display:inline-flex">Open WhatsApp — send order ${ref} →</a>`
+  statusEl.scrollIntoView({behavior:"smooth", block:"center"})
+  toast("Order " + ref + " — send on WhatsApp to complete")
+  orderRef = genRef()
+  refreshWa()
+  render()
 })

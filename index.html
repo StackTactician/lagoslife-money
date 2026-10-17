@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>LagosLife Money — Fast Lagos Life Cash Top-Up</title>
-<meta name="description" content="Buy Lagos Life in-game money fast. Bank transfer, drop your username, get credited in minutes." />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="theme-color" content="#0f172a" />
+<title>Eko Cash — Fast Lagos Life Cash Top-Up</title>
+<meta name="description" content="Eko Cash: buy Lagos Life in-game money fast. Bank transfer, drop your username, get credited in minutes. OPay 8123951223." />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/src/style.css" />
@@ -12,13 +13,14 @@
 <body>
 <header class="topbar">
   <div class="wrap topbar-inner">
-    <a class="brand" href="#"><span class="brand-mark">₦</span> LagosLife<span class="brand-accent">Money</span></a>
-    <nav class="topnav">
+    <a class="brand" href="#"><span class="brand-mark">₦</span> Eko<span class="brand-accent">Cash</span></a>
+    <button class="menu-btn" id="menu-btn" aria-label="Menu" aria-expanded="false">☰</button>
+    <nav class="topnav" id="topnav">
       <a href="#how">How it works</a>
       <a href="#buy">Packages</a>
       <a href="#faq">FAQ</a>
       <a href="#contact">Contact</a>
-      <a class="btn btn-sm btn-primary" href="#buy">Buy now</a>
+      <a class="btn btn-sm btn-primary nav-cta" href="#buy">Buy now</a>
     </nav>
   </div>
 </header>
@@ -26,12 +28,12 @@
 <section class="hero">
   <div class="wrap hero-grid">
     <div>
-      <p class="pill">Orders open · delivered in <strong>5–30 minutes</strong></p>
+      <p class="pill"><span class="pill-dot"></span> Orders open · <strong>5–30 min</strong> delivery</p>
       <h1>Stack your<br><span class="grad">Lagos Life</span><br>balance.</h1>
-      <p class="lead">Pay by transfer, send your in-game username, and we credit you. Fast, verified, no stress.</p>
+      <p class="lead">Pay by transfer, send your in-game username, we credit you. Fast, verified, no stress — powered by <strong>Eko Cash</strong>.</p>
       <div class="cta-row">
-        <a class="btn btn-primary btn-lg" href="#buy">Buy Lagos Life cash →</a>
-        <a class="btn btn-ghost btn-lg" id="hero-wa" target="_blank" rel="noreferrer">Chat on WhatsApp</a>
+        <a class="btn btn-primary btn-lg cta-main" href="#buy">Buy cash →</a>
+        <a class="btn btn-ghost btn-lg" id="hero-wa" target="_blank" rel="noreferrer">WhatsApp</a>
       </div>
       <dl class="stats">
         <div><dt>Delivery</dt><dd>5–30 min</dd></div>
@@ -39,8 +41,8 @@
         <div><dt>From</dt><dd>₦500</dd></div>
       </dl>
     </div>
-    <div class="hero-card">
-      <div class="wallet-head"><span>LAGOS LIFE WALLET</span><span class="dot">●</span></div>
+    <div class="hero-card" aria-hidden="true">
+      <div class="wallet-head"><span>EKO CASH WALLET</span><span class="dot">●</span></div>
       <p class="wallet-label">Incoming balance</p>
       <p class="wallet-amount">+100B</p>
       <p class="wallet-sub">Lagos Life money</p>
@@ -57,8 +59,8 @@
     <h2 class="h2">How it works</h2>
     <div class="steps">
       <div class="step"><span class="step-icon">◧</span><h3>Pick a package</h3><p>Choose a ready pack or enter any custom amount.</p></div>
-      <div class="step"><span class="step-icon">⇄</span><h3>Pay by transfer</h3><p>Send the exact amount to our OPay account below.</p></div>
-      <div class="step"><span class="step-icon">✦</span><h3>Drop your username</h3><p>Submit your Lagos Life username and we credit you.</p></div>
+      <div class="step"><span class="step-icon">⇄</span><h3>Pay by transfer</h3><p>Send exact amount to our OPay below.</p></div>
+      <div class="step"><span class="step-icon">✦</span><h3>Drop your username</h3><p>Submit your Lagos Life username — we credit you.</p></div>
     </div>
   </div>
 </section>
@@ -66,6 +68,7 @@
 <section class="section" id="buy">
   <div class="wrap">
     <h2 class="h2">Choose how much you want</h2>
+    <p class="section-sub">Tap a pack. Custom from 25B — ₦20 per 1B.</p>
     <div class="packs" id="packs"></div>
     <div class="custom-box" id="custom-box"></div>
 
@@ -80,54 +83,54 @@
             </div>
             <div class="pay-right">
               <small>for</small>
-              <strong id="pay-for">100B · Big Boy pack</strong>
+              <strong id="pay-for">100B · Big Boy</strong>
             </div>
           </div>
           <div class="bank-rows">
-            <div class="kv"><span>Account number</span><button class="copy" data-copy="8123951223">8123951223 <i>⧉</i></button></div>
+            <div class="kv"><span>Account number</span><button class="copy" data-copy="8123951223" aria-label="Copy account number">8123951223 <i>⧉</i></button></div>
             <div class="kv"><span>Account name</span><strong>SUNSHINE OGBIGBE</strong></div>
             <div class="kv"><span>Bank</span><strong>OPay</strong></div>
-            <div class="kv"><span>Narration / reference</span><strong id="order-ref-display">LLM-······</strong></div>
+            <div class="kv"><span>Reference</span><strong id="order-ref-display">LLM-······</strong></div>
           </div>
-          <p class="hint">↗ Add your order reference as the transfer narration so we match payment faster.</p>
+          <p class="hint">Add your order reference as transfer narration — we match faster.</p>
         </div>
         <div class="alt-pay">
-          <p>Prefer to chat? After paying, message us on WhatsApp with your Lagos Life username and payment screenshot.</p>
+          <p>After paying, message us on WhatsApp with username + receipt.</p>
           <ol>
             <li>Pay into OPay <strong>8123951223</strong> (Sunshine Ogbigbe).</li>
-            <li>Send your Lagos Life username + receipt on WhatsApp.</li>
-            <li>Receive your game money in 5–30 minutes.</li>
+            <li>Send Lagos Life username + receipt on WhatsApp.</li>
+            <li>Receive money in 5–30 minutes.</li>
           </ol>
         </div>
       </div>
 
       <div>
         <h3 class="h3"><span class="num">3</span> Send your username</h3>
-        <form id="order-form" class="form-card" enctype="multipart/form-data">
+        <form id="order-form" class="form-card" autocomplete="on">
           <div id="form-status" class="form-status" hidden></div>
-          <label> Lagos Life username * <input name="username" required maxlength="60" placeholder="e.g. EkoBoy_23" /></label>
+          <label> Lagos Life username * <input name="username" required maxlength="60" placeholder="e.g. EkoBoy_23" autocomplete="username" /></label>
           <p class="field-hint">Double-check spelling — this is where we send your money.</p>
           <div class="grid2">
-            <label>Your name * <input name="senderName" required maxlength="100" /></label>
-            <label>WhatsApp / phone * <input name="whatsapp" required type="tel" maxlength="20" placeholder="080..." /></label>
+            <label>Your name * <input name="senderName" required maxlength="100" autocomplete="name" /></label>
+            <label>WhatsApp / phone * <input name="whatsapp" required type="tel" inputmode="tel" maxlength="20" placeholder="080..." autocomplete="tel" /></label>
           </div>
-          <label>Email (optional) <input name="email" type="email" maxlength="120" /></label>
+          <label>Email (optional) <input name="email" type="email" maxlength="120" autocomplete="email" inputmode="email" /></label>
           <div class="divider">Payment details</div>
           <div class="grid2">
             <label>Name on sending account * <input name="senderAccountName" required maxlength="100" /></label>
             <label>Amount you sent (₦) * <input name="amountPaid" required type="number" min="1" inputmode="numeric" id="amountPaid" /></label>
           </div>
-          <label>Transfer reference / session ID (optional) <input name="paymentRef" maxlength="100" /></label>
-          <label>Payment receipt (image/PDF, max 5 MB)
+          <label>Transfer reference (optional) <input name="paymentRef" maxlength="100" /></label>
+          <label>Receipt (image/PDF, max 5 MB)
             <input type="file" name="receipt" accept="image/*,application/pdf" id="receipt" />
-            <span id="receipt-name" class="field-hint">Tap to upload your transfer receipt</span>
+            <span id="receipt-name" class="field-hint">Tap to upload transfer receipt</span>
           </label>
           <label>Anything else? (optional) <textarea name="note" rows="3" maxlength="500"></textarea></label>
           <input type="hidden" name="orderRef" id="orderRef" />
           <input type="hidden" name="package" id="pkgName" />
           <input type="hidden" name="gameAmount" id="gameAmount" />
           <input type="hidden" name="amountDue" id="amountDue" />
-          <p class="fine">Order reference: <strong id="fine-ref">LLM-······</strong> · Money is sent only after payment is confirmed.</p>
+          <p class="fine">Ref: <strong id="fine-ref">LLM-······</strong> · Money sent only after payment confirmed.</p>
           <button class="btn btn-primary btn-lg full" type="submit" id="submit-btn">I've paid — send my <span id="btn-amount">100B</span></button>
         </form>
       </div>
@@ -140,16 +143,16 @@
     <div>
       <h2 class="h2">Questions</h2>
       <div class="faq">
-        <details open><summary>How long does delivery take?</summary><p>Most orders within 5–30 minutes after payment is confirmed. Busy hours may take a bit longer — we keep you posted on WhatsApp.</p></details>
-        <details><summary>What if I type the wrong username?</summary><p>Message us on WhatsApp with your order reference immediately. If not yet sent, we correct it.</p></details>
-        <details><summary>Do I need to upload a receipt?</summary><p>Optional but speeds things up. A screenshot helps us match your payment instantly.</p></details>
-        <details><summary>Can I buy a custom amount?</summary><p>Yes. Use the custom box — any amount from 25B upwards. Price at ₦20 per 1B.</p></details>
+        <details open><summary>How long does delivery take?</summary><p>Most orders 5–30 min after payment confirmed. Busy hours a bit longer — we keep you posted on WhatsApp.</p></details>
+        <details><summary>What if I type the wrong username?</summary><p>Message us on WhatsApp with order reference immediately. If not yet sent, we correct it.</p></details>
+        <details><summary>Do I need to upload a receipt?</summary><p>Optional but speeds things up. Screenshot helps us match payment instantly.</p></details>
+        <details><summary>Can I buy a custom amount?</summary><p>Yes — from 25B upwards at ₦20/1B.</p></details>
       </div>
     </div>
     <div class="help-card">
       <h3>Still need help?</h3>
-      <p>Our team is on WhatsApp and happy to sort you out.</p>
-      <a class="btn btn-primary" id="faq-wa" target="_blank" rel="noreferrer">Message us</a>
+      <p>We are on WhatsApp and happy to sort you out.</p>
+      <a class="btn btn-primary full" id="faq-wa" target="_blank" rel="noreferrer">Message on WhatsApp</a>
     </div>
   </div>
 </section>
@@ -157,25 +160,30 @@
 <section class="section" id="contact">
   <div class="wrap">
     <h2 class="h2">Send us your <span class="grad">username</span></h2>
-    <p class="lead">Prefer to chat? After paying, message us on WhatsApp with your Lagos Life username and screenshot.</p>
+    <p class="lead">After paying, WhatsApp us your Lagos Life username + screenshot.</p>
     <ol class="contact-steps">
       <li>Pay into OPay <strong>8123951223</strong> (Sunshine Ogbigbe).</li>
-      <li>Send your Lagos Life username + receipt on WhatsApp.</li>
-      <li>Receive your game money in 5–30 minutes.</li>
+      <li>Send Lagos Life username + receipt on WhatsApp.</li>
+      <li>Receive money in 5–30 minutes.</li>
     </ol>
     <div class="contact-cards">
       <a class="contact-card primary" id="wa-card" target="_blank" rel="noreferrer"><span>WhatsApp (fastest)</span><strong>08123951223</strong></a>
-      <a class="contact-card" href="tel:+2348123951223"><span>Call or SMS</span><strong>08123951223</strong></a>
+      <a class="contact-card" href="tel:+2348123951223"><span>Call / SMS</span><strong>08123951223</strong></a>
     </div>
   </div>
 </section>
 
 <footer class="footer">
   <div class="wrap footer-inner">
-    <span>© <span id="yr"></span> LagosLife Money. Fast, trusted Lagos Life cash top-ups.</span>
+    <span>© <span id="yr"></span> Eko Cash. Fast, trusted Lagos Life top-ups.</span>
     <span class="foot-note">Independent reseller — not affiliated with Lagos Life developers.</span>
   </div>
 </footer>
+
+<nav class="sticky-cta" aria-label="Buy">
+  <a class="btn btn-primary" href="#buy">Buy now — from ₦500</a>
+  <a class="btn btn-ghost" id="sticky-wa" target="_blank" rel="noreferrer">WhatsApp</a>
+</nav>
 
 <div id="toast" class="toast" hidden></div>
 <script type="module" src="/src/main.js"></script>
