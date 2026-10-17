@@ -121,12 +121,23 @@ if(menuBtn && topnav){
   menuBtn.addEventListener("click",()=>{
     const o=topnav.classList.toggle("open")
     menuBtn.setAttribute("aria-expanded", String(o))
-    menuBtn.textContent = o ? "✕" : "☰"
+    menuBtn.textContent = o ? "Close" : "Menu"
   })
   topnav.querySelectorAll("a").forEach(a=> a.addEventListener("click",()=>{
-    topnav.classList.remove("open"); menuBtn.setAttribute("aria-expanded","false"); menuBtn.textContent="☰"
+    topnav.classList.remove("open"); menuBtn.setAttribute("aria-expanded","false"); menuBtn.textContent="Menu"
   }))
 }
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener("click", e=>{
+    const id=a.getAttribute("href")
+    if(!id || id==="#") return
+    const t=document.querySelector(id)
+    if(!t) return
+    e.preventDefault()
+    t.scrollIntoView({behavior:"smooth", block:"start"})
+    history.pushState(null,"",id)
+  })
+})
 document.querySelectorAll("[data-copy]").forEach(b=>{
   b.addEventListener("click", async ()=>{
     try{ await navigator.clipboard.writeText(b.dataset.copy); toast("Copied " + b.dataset.copy) }catch{ toast(b.dataset.copy) }
