@@ -49,7 +49,7 @@ function render(){
   const customPrice = calcCustom(selected.customAmount)
   const customValid = selected.customAmount >= CFG.minCustom
   document.getElementById("custom-box").innerHTML = `
-    <label><span>◈</span> Custom amount (billions)</label>
+    <label>Custom amount (billions)</label>
     <input type="number" id="custom-input" inputmode="numeric" min="${CFG.minCustom/1e9}" step="1" value="${Math.floor(selected.customAmount/1e9)}" />
     <div class="custom-meta">
       <small style="color:${customValid?"var(--text-muted)":"#dc2626"}">${customValid?`₦${CFG.ratePerB} per 1B`:`Minimum ${fmtAmtPretty(CFG.minCustom)}`}</small>
@@ -152,7 +152,7 @@ form.addEventListener("submit", (e)=>{
   const cur = currentPack()
   const chat = waLink(`Hi, I just paid for Lagos Life money. Order ${ref}, username ${username}. Package: ${cur.label} (${fmtAmtPretty(cur.amount)}) at ${fmtN(cur.price)}. Amount sent: ₦${fd.get("amountPaid")||cur.price}. From: ${fd.get("senderName")||""} (${fd.get("whatsapp")||""})`)
   statusEl.hidden=false; statusEl.className="form-status ok"
-  statusEl.innerHTML = `Order captured! Ref <strong>${ref}</strong>. Tap below to send your details on WhatsApp and we credit you within ${CFG.delivery}.<br><a href="${chat}" target="_blank" rel="noreferrer" class="btn btn-primary" style="margin-top:10px;display:inline-flex">Open WhatsApp, send order ${ref} →</a>`
+  statusEl.innerHTML = `Order captured! Ref <strong>${ref}</strong>. Tap below to send your details on WhatsApp and we credit you within ${CFG.delivery}.<br><a href="${chat}" target="_blank" rel="noreferrer" class="btn btn-primary" style="margin-top:10px;display:inline-flex">Open WhatsApp, send order ${ref}</a>`
   statusEl.scrollIntoView({behavior:"smooth", block:"center"})
   toast("Order " + ref + " sent. Complete on WhatsApp")
   orderRef = genRef()
