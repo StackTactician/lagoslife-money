@@ -3,91 +3,28 @@ const CFG = {
   whatsapp: "2348123951223",
   bank: { name: "OPay", accountName: "SUNSHINE OGBIGBE", accountNumber: "8123951223" },
   delivery: "5 to 30 minutes",
-  ratePerB: 20,
-  minCustom: 25e9,
+  ratePer100B: 1500,
+  minCustom: 1e9,
 }
-const PACKS = [
-  { id:"starter", name:"Starter", amount:25e9, price:500 },
-  { id:"hustler", name:"Hustler", amount:50e9, price:1000 },
-  { id:"big-boy", name:"Big Boy", amount:100e9, price:2000, badge:"Most popular" },
-  { id:"odogwu", name:"Odogwu", amount:200e9, price:4000, badge:"Best value" },
-]
-const fmtN = n => "₦" + n.toLocaleString("en-NG")
+function fmtN(n){ return "₦" + n.toLocaleString("en-NG") }
 function fmtAmtPretty(n){
   if(n>=1e9) return `${+(n/1e9).toFixed(n%1e9===0?0:2)}B`
   if(n>=1e6) return `${+(n/1e6).toFixed(2)}M`
   if(n>=1e3) return `${+(n/1e3).toFixed(1)}K`
   return String(n)
 }
-function calcCustom(amount){ return Math.ceil(amount/1e9 * CFG.ratePerB) }
-function currentPack(){
-  const p = PACKS.find(x=>x.id===selected.packId)
-  if(p) return { label:p.name, amount:p.amount, price:p.price }
-  return { label:"Custom", amount:selected.customAmount, price: calcCustom(selected.customAmount) }
-}
-let selected = { packId:"big-boy", customAmount: 300e9 }
+function calcPrice(amount){ return Math.ceil(amount/1e11 * CFG.ratePer100B) }
+let amount = 100e9
 function render(){
-  const packsEl = document.getElementById("packs")
-  packsEl.innerHTML = PACKS.map(p=>{
-    const active = p.id===selected.packId
-    return `<div class="pack ${active?"active":""}" data-id="${p.id}">
-      ${p.badge?`<span class="pack-badge">${p.badge}</span>`:""}
-      <h4>${p.name}</h4>
-      <p class="pack-amount">${fmtAmtPretty(p.amount)}</p>
-      <p class="pack-sub">Lagos Life money</p>
-      <span class="pack-price">${fmtN(p.price)}</span>
-    </div>`
-  }).join("")
-  const isCustom = selected.packId==="custom"
-  const customPrice = calcCustom(selected.customAmount)
-  const customValid = selected.customAmount >= CFG.minCustom
-  document.getElementById("custom-box").innerHTML = `
-    <label>Custom amount (billions)</label>
-    <input type="number" id="custom-input" inputmode="numeric" min="${CFG.minCustom/1e9}" step="1" value="${Math.floor(selected.customAmount/1e9)}" />
-    <div class="custom-meta">
-      <small style="color:${customValid?"var(--muted-fg)":"#dc2626"}">${customValid?`₦${CFG.ratePerB} per 1B`:`Minimum ${fmtAmtPretty(CFG.minCustom)}`}</small>
-      <strong>${fmtN(customPrice)}</strong>
-    </div>
-  `
-  const box = document.getElementById("custom-box")
-  box.className = "custom-box" + (isCustom?" active":"")
-  if(isCustom && !customValid) box.style.borderColor="#fca5a5"
-  const cur = currentPack()
-  const disabled = isCustom && !customValid
-  document.getElementById("pay-amount").textContent = disabled ? "--" : fmtN(cur.price)
-  document.getElementById("pay-for").textContent = `${fmtAmtPretty(cur.amount)} ${cur.label} pack`
-  document.getElementById("pkgName").value = cur.label
-  document.getElementById("gameAmount").value = cur.amount.toLocaleString("en-NG")
-  document.getElementById("amountDue").value = fmtN(cur.price)
-  document.getElementById("amountPaid").value = cur.price
-  document.getElementById("btn-amount").textContent = fmtAmtPretty(cur.amount)
-  document.getElementById("submit-btn").disabled = disabled
-  document.querySelectorAll(".pack").forEach(el=>{
-    el.onclick = ()=>{ selected.packId = el.dataset.id; render() }
-  })
-  const ci = document.getElementById("custom-input")
-  ci.onfocus = ()=>{ selected.packId="custom"; render(); document.getElementById("custom-input")?.focus() }
-  ci.oninput = (e)=>{
-    const v = Number(e.target.value)
-    selected.packId="custom"
-    selected.customAmount = (isFinite(v) && v>0 ? v : 0) * 1e9
-    const price = calcCustom(selected.customAmount)
-    const meta = document.querySelector(".custom-meta")
-    if(meta){
-      const valid = selected.customAmount >= CFG.minCustom
-      meta.innerHTML = `<small style="color:${valid?"var(--muted-fg)":"#dc2626"}">${valid?`₦${CFG.ratePerB} per 1B`:`Minimum ${fmtAmtPretty(CFG.minCustom)}`}</small><strong>${fmtN(price)}</strong>`
-      document.getElementById("pay-amount").textContent = valid ? fmtN(price) : "--"
-      document.getElementById("pay-for").textContent = `${fmtAmtPretty(selected.customAmount||0)} Custom pack`
-      document.getElementById("submit-btn").disabled = !valid
-      document.getElementById("pkgName").value = "Custom"
-      document.getElementById("gameAmount").value = (selected.customAmount||0).toLocaleString("en-NG")
-      document.getElementById("amountDue").value = fmtN(price)
-      document.getElementById("amountPaid").value = price
-      document.getElementById("btn-amount").textContent = fmtAmtPretty(selected.customAmount||0)
-      box.classList.add("active")
-      box.style.borderColor = valid ? "" : "#fca5a5"
-    }
-  }
+  const price = calcPrice(amount)
+  document.getElementById("custom-input").value = Math.round(amount/1e9) || ""
+  document.getElementById("custom-meta").innerHTML = `<small>${fmtN(CFG.ratePer100B)} per 100B</small><strong>${fmtN(price)}</strong>`
+  document.getElementById("pay-amount").textContent = fmtN(price)
+  document.getElementById("pay-for").textContent = fmtAmtPretty(amount) + " Lagos Life money"
+  document.getElementById("gameAmount").value = amount.toLocaleString("en-NG")
+  document.getElementById("amountDue").value = fmtN(price)
+  document.getElementById("amountPaid").value = price
+  document.getElementById("btn-amount").textContent = fmtAmtPretty(amount)
 }
 function toast(msg){
   const t=document.getElementById("toast")
@@ -97,13 +34,6 @@ function toast(msg){
   t._id=setTimeout(()=> t.hidden=true, 2600)
 }
 function waLink(text){ return `https://wa.me/${CFG.whatsapp}?text=${encodeURIComponent(text)}` }
-function waMsg(username, pkgLabel, amount, price, senderName, whatsapp){
-  let m = `Hello Eko Cash, I want to buy Lagos Life cash. Package: ${pkgLabel} (${fmtAmtPretty(amount)}) at ${fmtN(price)}.`
-  if(username) m += ` Username: ${username}.`
-  if(senderName) m += ` Sender: ${senderName}.`
-  if(whatsapp) m += ` Phone: ${whatsapp}.`
-  return m
-}
 document.getElementById("yr").textContent = new Date().getFullYear()
 function refreshWa(){
   const link = waLink("Hello Eko Cash, I want to buy Lagos Life cash. My username is: ")
@@ -143,6 +73,15 @@ document.getElementById("receipt").addEventListener("change", e=>{
   const f=e.target.files?.[0]
   document.getElementById("receipt-name").textContent = f ? f.name : "Upload your transfer screenshot if you have it"
 })
+const input = document.getElementById("custom-input")
+if(input){
+  input.addEventListener("input", ()=>{
+    const v = Number(input.value)
+    amount = (isFinite(v) && v>0 ? v : 0) * 1e9
+    if(amount < CFG.minCustom) amount = CFG.minCustom
+    render()
+  })
+}
 render()
 const form = document.getElementById("order-form")
 const statusEl = document.getElementById("form-status")
@@ -154,8 +93,14 @@ form.addEventListener("submit", (e)=>{
     statusEl.hidden=false; statusEl.className="form-status err"; statusEl.textContent="Receipt larger than 5 MB. Upload a smaller file."
     return
   }
-  const cur = currentPack()
-  const msg = waMsg(String(fd.get("username")||""), cur.label, cur.amount, cur.price, String(fd.get("senderName")||""), String(fd.get("whatsapp")||""))
+  const price = calcPrice(amount)
+  const username = String(fd.get("username")||"")
+  const senderName = String(fd.get("senderName")||"")
+  const whatsapp = String(fd.get("whatsapp")||"")
+  let msg = `Hello Eko Cash, I want to buy Lagos Life cash. Amount: ${fmtAmtPretty(amount)} at ${fmtN(price)}.`
+  if(username) msg += ` Username: ${username}.`
+  if(senderName) msg += ` Sender: ${senderName}.`
+  if(whatsapp) msg += ` Phone: ${whatsapp}.`
   const chat = waLink(msg)
   statusEl.hidden=false; statusEl.className="form-status ok"
   statusEl.innerHTML = `Details ready. Tap below to send on WhatsApp and we will credit you within ${CFG.delivery} after confirming payment.<br><a href="${chat}" target="_blank" rel="noreferrer" class="btn btn-primary" style="margin-top:10px;display:inline-flex">Open WhatsApp</a>`
