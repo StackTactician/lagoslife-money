@@ -61,8 +61,8 @@ function render(){
   if(isCustom && !customValid) box.style.borderColor="#fca5a5"
   const cur = currentPack()
   const disabled = isCustom && !customValid
-  document.getElementById("pay-amount").textContent = disabled ? "—" : fmtN(cur.price)
-  document.getElementById("pay-for").textContent = `${fmtAmtPretty(cur.amount)} · ${cur.label} pack`
+  document.getElementById("pay-amount").textContent = disabled ? "--" : fmtN(cur.price)
+  document.getElementById("pay-for").textContent = `${fmtAmtPretty(cur.amount)} ${cur.label} pack`
   document.getElementById("order-ref-display").textContent = orderRef
   document.getElementById("fine-ref").textContent = orderRef
   document.getElementById("orderRef").value = orderRef
@@ -86,8 +86,8 @@ function render(){
     if(meta){
       const valid = selected.customAmount >= CFG.minCustom
       meta.innerHTML = `<small style="color:${valid?"var(--text-muted)":"#dc2626"}">${valid?`₦${CFG.ratePerB} per 1B`:`Minimum ${fmtAmtPretty(CFG.minCustom)}`}</small><strong>${fmtN(price)}</strong>`
-      document.getElementById("pay-amount").textContent = valid ? fmtN(price) : "—"
-      document.getElementById("pay-for").textContent = `${fmtAmtPretty(selected.customAmount||0)} · Custom pack`
+      document.getElementById("pay-amount").textContent = valid ? fmtN(price) : "--"
+      document.getElementById("pay-for").textContent = `${fmtAmtPretty(selected.customAmount||0)} Custom pack`
       document.getElementById("submit-btn").disabled = !valid
       document.getElementById("pkgName").value = "Custom"
       document.getElementById("gameAmount").value = (selected.customAmount||0).toLocaleString("en-NG")
@@ -144,17 +144,17 @@ form.addEventListener("submit", (e)=>{
   const fd = new FormData(form)
   const file = fd.get("receipt")
   if(file && file.size > 5*1024*1024){
-    statusEl.hidden=false; statusEl.className="form-status err"; statusEl.textContent="Receipt larger than 5 MB — upload a smaller file."
+    statusEl.hidden=false; statusEl.className="form-status err"; statusEl.textContent="Receipt larger than 5 MB. Upload a smaller file."
     return
   }
   const username = String(fd.get("username")||"")
   const ref = orderRef
   const cur = currentPack()
-  const chat = waLink(`Hi, I just paid for Lagos Life money. Order ${ref}, username ${username}. Package: ${cur.label} (${fmtAmtPretty(cur.amount)}) — ${fmtN(cur.price)}. Amount sent: ₦${fd.get("amountPaid")||cur.price}. From: ${fd.get("senderName")||""} (${fd.get("whatsapp")||""})`)
+  const chat = waLink(`Hi, I just paid for Lagos Life money. Order ${ref}, username ${username}. Package: ${cur.label} (${fmtAmtPretty(cur.amount)}) at ${fmtN(cur.price)}. Amount sent: ₦${fd.get("amountPaid")||cur.price}. From: ${fd.get("senderName")||""} (${fd.get("whatsapp")||""})`)
   statusEl.hidden=false; statusEl.className="form-status ok"
-  statusEl.innerHTML = `Order captured! Ref <strong>${ref}</strong> — tap below to send your details on WhatsApp and we credit you within ${CFG.delivery}.<br><a href="${chat}" target="_blank" rel="noreferrer" class="btn btn-primary" style="margin-top:10px;display:inline-flex">Open WhatsApp — send order ${ref} →</a>`
+  statusEl.innerHTML = `Order captured! Ref <strong>${ref}</strong>. Tap below to send your details on WhatsApp and we credit you within ${CFG.delivery}.<br><a href="${chat}" target="_blank" rel="noreferrer" class="btn btn-primary" style="margin-top:10px;display:inline-flex">Open WhatsApp, send order ${ref} →</a>`
   statusEl.scrollIntoView({behavior:"smooth", block:"center"})
-  toast("Order " + ref + " — send on WhatsApp to complete")
+  toast("Order " + ref + " sent. Complete on WhatsApp")
   orderRef = genRef()
   refreshWa()
   render()
